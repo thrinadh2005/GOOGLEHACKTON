@@ -1,166 +1,106 @@
-"use client";
-import { useState, useEffect } from "react";
-
 export default function Dashboard() {
-  const [patientId, setPatientId] = useState("12345");
-  const [patientData, setPatientData] = useState<any>(null);
-  const [prediction, setPrediction] = useState<any>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-
-  const fetchPatientData = async () => {
-    setLoading(true);
-    setError("");
-    setPrediction(null);
-    try {
-      const token = localStorage.getItem('smart_health_token');
-      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-      const res = await fetch(`${API_URL}/api/patients/${patientId}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      if (res.status === 401) {
-        window.location.href = '/login';
-        return;
-      }
-      if (!res.ok) throw new Error("Patient not found");
-      const data = await res.json();
-      setPatientData(data);
-    } catch (err: any) {
-      setError(err.message);
-      setPatientData(null);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const runAIPrediction = async () => {
-    if (!patientData) return;
-    setLoading(true);
-    try {
-      const token = localStorage.getItem('smart_health_token');
-      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-      const res = await fetch(`${API_URL}/api/ai/predict-disease`, {
-        method: "POST",
-        headers: { 
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          patient_id: patientData.patient_id,
-          age: patientData.age,
-          blood_pressure: patientData.blood_pressure,
-          heart_rate: patientData.heart_rate,
-          cholesterol: 250 // Mocking some extra data
-        })
-      });
-      if (res.status === 401) {
-        window.location.href = '/login';
-        return;
-      }
-      const data = await res.json();
-      setPrediction(data.prediction);
-    } catch (err: any) {
-      setError("Failed to run AI prediction");
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
-    <div className="space-y-6">
-      <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
-        <h2 className="text-lg font-semibold mb-4">Patient Lookup</h2>
-        <div className="flex gap-4">
-          <input
-            type="text"
-            value={patientId}
-            onChange={(e) => setPatientId(e.target.value)}
-            className="flex-1 px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Enter Patient ID (e.g., 12345)"
-          />
-          <button 
-            onClick={fetchPatientData}
-            disabled={loading}
-            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
-          >
-            {loading ? "Searching..." : "Search"}
-          </button>
-        </div>
-        {error && <p className="mt-2 text-red-500 text-sm">{error}</p>}
+    <div className="space-y-10">
+      
+      {/* Header Section */}
+      <div>
+        <h1 className="text-4xl font-black text-slate-800 tracking-tight">Welcome back, BANNU! 👋</h1>
+        <p className="text-lg text-slate-500 font-medium mt-2">Here's your health overview for today.</p>
       </div>
 
-      {patientData && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
-            <h2 className="text-lg font-semibold mb-4 text-slate-800">Patient Vitals (Edge IoT)</h2>
-            <div className="space-y-4">
-              <div className="flex justify-between p-3 bg-slate-50 rounded-lg border border-slate-100">
-                <span className="text-slate-500">Name</span>
-                <span className="font-medium text-slate-900">{patientData.name}</span>
-              </div>
-              <div className="flex justify-between p-3 bg-slate-50 rounded-lg border border-slate-100">
-                <span className="text-slate-500">Age</span>
-                <span className="font-medium text-slate-900">{patientData.age}</span>
-              </div>
-              <div className="flex justify-between p-3 bg-slate-50 rounded-lg border border-slate-100">
-                <span className="text-slate-500">Blood Pressure</span>
-                <span className="font-medium text-slate-900">{patientData.blood_pressure}</span>
-              </div>
-              <div className="flex justify-between p-3 bg-slate-50 rounded-lg border border-slate-100">
-                <span className="text-slate-500">Heart Rate</span>
-                <span className="font-medium text-slate-900">{patientData.heart_rate} bpm</span>
-              </div>
-            </div>
-            <button 
-              onClick={runAIPrediction}
-              disabled={loading}
-              className="mt-6 w-full py-3 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white font-semibold rounded-lg hover:from-emerald-600 hover:to-emerald-700 shadow-lg shadow-emerald-500/20 transition-all"
-            >
-              Run AI Predictive Analysis
-            </button>
+      {/* KPI Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="bg-blue-50/50 p-6 rounded-3xl border border-blue-100 flex items-center gap-4">
+          <div className="w-14 h-14 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center text-2xl font-black">
+            0
           </div>
-
-          {prediction && (
-            <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100 relative overflow-hidden">
-              <div className={`absolute top-0 left-0 w-1 h-full ${
-                prediction.risk_level === 'High' ? 'bg-red-500' :
-                prediction.risk_level === 'Medium' ? 'bg-amber-500' : 'bg-emerald-500'
-              }`}></div>
-              
-              <h2 className="text-lg font-semibold mb-4 text-slate-800">AI Analysis Results</h2>
-              
-              <div className="mb-6">
-                <p className="text-sm text-slate-500 mb-1">Risk Level</p>
-                <div className="flex items-end gap-3">
-                  <span className={`text-4xl font-bold ${
-                    prediction.risk_level === 'High' ? 'text-red-500' :
-                    prediction.risk_level === 'Medium' ? 'text-amber-500' : 'text-emerald-500'
-                  }`}>
-                    {prediction.risk_level}
-                  </span>
-                  <span className="text-sm font-medium text-slate-400 mb-1">
-                    ({(prediction.confidence_score * 100).toFixed(0)}% confidence)
-                  </span>
-                </div>
-              </div>
-
-              <div>
-                <p className="text-sm text-slate-500 mb-2">Automated Recommendations</p>
-                <ul className="space-y-2">
-                  {prediction.recommendations.map((rec: string, i: number) => (
-                    <li key={i} className="flex items-start gap-2 text-sm text-slate-700 bg-slate-50 p-3 rounded-lg border border-slate-100">
-                      <span className="text-emerald-500">✓</span>
-                      {rec}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          )}
+          <span className="text-lg font-bold text-slate-700">Scheduled</span>
         </div>
-      )}
+        
+        <div className="bg-emerald-50/50 p-6 rounded-3xl border border-emerald-100 flex items-center gap-4">
+          <div className="w-14 h-14 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center text-2xl font-black">
+            0
+          </div>
+          <span className="text-lg font-bold text-slate-700">Upcoming</span>
+        </div>
+        
+        <div className="bg-rose-50/50 p-6 rounded-3xl border border-rose-100 flex items-center gap-4">
+          <div className="w-14 h-14 bg-rose-100 text-rose-600 rounded-2xl flex items-center justify-center text-2xl font-black">
+            0
+          </div>
+          <span className="text-lg font-bold text-slate-700">Alerts</span>
+        </div>
+      </div>
+
+      {/* Main Sections Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        
+        {/* Today's Medicines */}
+        <div className="bg-white p-8 rounded-3xl shadow-xl shadow-slate-200/40 border border-slate-100 flex flex-col justify-between">
+          <div>
+            <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-xl mb-6">💊</div>
+            <h2 className="text-xl font-bold text-slate-800 mb-2">Today's Medicines</h2>
+            <p className="text-slate-500 font-medium">No medicines scheduled for today.</p>
+          </div>
+          <button className="mt-8 text-blue-600 font-bold hover:text-blue-700 text-left">
+            View All Medicines &rarr;
+          </button>
+        </div>
+
+        {/* Appointments */}
+        <div className="bg-white p-8 rounded-3xl shadow-xl shadow-slate-200/40 border border-slate-100 flex flex-col justify-between">
+          <div>
+            <div className="w-12 h-12 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center text-xl mb-6">📅</div>
+            <h2 className="text-xl font-bold text-slate-800 mb-2">Appointments</h2>
+            <p className="text-slate-500 font-medium">No upcoming appointments.</p>
+          </div>
+          <button className="mt-8 text-purple-600 font-bold hover:text-purple-700 text-left">
+            Manage Appointments &rarr;
+          </button>
+        </div>
+
+        {/* Expiry Alerts */}
+        <div className="bg-white p-8 rounded-3xl shadow-xl shadow-slate-200/40 border border-slate-100 flex flex-col justify-between">
+          <div>
+            <div className="w-12 h-12 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center text-xl mb-6">⚠️</div>
+            <h2 className="text-xl font-bold text-slate-800 mb-2">Expiry Alerts</h2>
+            <p className="text-emerald-500 font-medium">All medicines are within safe dates.</p>
+          </div>
+          <button className="mt-8 text-amber-600 font-bold hover:text-amber-700 text-left">
+            Check Inventory &rarr;
+          </button>
+        </div>
+
+      </div>
+
+      {/* Quick Action Buttons */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6 border-t border-slate-100 print:hidden">
+        
+        <button className="bg-white border-2 border-slate-100 p-6 rounded-2xl hover:border-blue-500 hover:shadow-lg transition-all text-left group">
+          <div className="flex items-center gap-4 mb-2">
+            <span className="text-2xl">➕</span>
+            <h3 className="text-lg font-bold text-slate-800 group-hover:text-blue-600 transition-colors">Add Medicine</h3>
+          </div>
+          <p className="text-slate-500 font-medium ml-10">Schedule new dosages</p>
+        </button>
+        
+        <button className="bg-white border-2 border-slate-100 p-6 rounded-2xl hover:border-purple-500 hover:shadow-lg transition-all text-left group">
+          <div className="flex items-center gap-4 mb-2">
+            <span className="text-2xl">🏥</span>
+            <h3 className="text-lg font-bold text-slate-800 group-hover:text-purple-600 transition-colors">Book Appointment</h3>
+          </div>
+          <p className="text-slate-500 font-medium ml-10">Visit your doctor</p>
+        </button>
+        
+        <button className="bg-white border-2 border-slate-100 p-6 rounded-2xl hover:border-amber-500 hover:shadow-lg transition-all text-left group">
+          <div className="flex items-center gap-4 mb-2">
+            <span className="text-2xl">🔍</span>
+            <h3 className="text-lg font-bold text-slate-800 group-hover:text-amber-600 transition-colors">Track Expiry</h3>
+          </div>
+          <p className="text-slate-500 font-medium ml-10">Check stock dates</p>
+        </button>
+
+      </div>
     </div>
   );
 }

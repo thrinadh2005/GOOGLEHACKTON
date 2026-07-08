@@ -71,18 +71,23 @@ export default function Consultation() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
-        <h2 className="text-xl font-bold mb-2">Telemedicine Consultation</h2>
-        <p className="text-slate-500 mb-6">Secure WebRTC peer-to-peer video connection</p>
+    <div className="space-y-6 max-w-7xl mx-auto">
+      <div className="flex justify-between items-end mb-8">
+        <div>
+          <h1 className="text-3xl font-black text-slate-800 tracking-tight">Telemedicine Suite</h1>
+          <p className="text-slate-500 font-medium mt-1">High-definition WebRTC peer-to-peer encrypted consultation.</p>
+        </div>
+      </div>
+
+      <div className="bg-white p-8 rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100">
         
-        <div className="bg-blue-50 text-blue-800 p-4 rounded-lg mb-6 flex items-center justify-between">
-          <span>Your Meeting ID: <strong>{peerId || "Generating..."}</strong></span>
+        <div className="bg-blue-50 border border-blue-100 text-blue-800 p-4 rounded-xl mb-8 flex items-center justify-between shadow-inner">
+          <span className="font-medium">Secure Meeting ID: <strong className="text-blue-900 tracking-wider bg-white px-3 py-1 rounded ml-2 shadow-sm">{peerId || "Generating..."}</strong></span>
           <button 
             onClick={() => navigator.clipboard.writeText(peerId)}
-            className="text-sm bg-blue-200 px-3 py-1 rounded hover:bg-blue-300"
+            className="text-sm bg-white border border-blue-200 px-4 py-2 rounded-lg hover:bg-blue-100 font-bold transition-colors"
           >
-            Copy
+            Copy ID
           </button>
         </div>
 
@@ -91,31 +96,34 @@ export default function Consultation() {
             type="text" 
             value={remotePeerIdValue} 
             onChange={e => setRemotePeerIdValue(e.target.value)} 
-            placeholder="Enter patient/doctor ID to call"
-            className="flex-1 px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            placeholder="Enter Patient ID to initiate call..."
+            className="flex-1 px-5 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-slate-50 text-slate-800 font-medium"
           />
           <button 
             onClick={() => call(remotePeerIdValue)}
-            className="px-6 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors"
+            className="px-8 py-3 bg-emerald-500 text-white font-bold rounded-xl shadow-lg shadow-emerald-200 hover:bg-emerald-600 transition-colors"
           >
-            Start Video Call
+            Start Encrypted Call
           </button>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="relative bg-slate-900 rounded-xl overflow-hidden aspect-video shadow-inner">
+          <div className="relative bg-slate-900 rounded-2xl overflow-hidden aspect-video shadow-lg border-4 border-slate-100">
             <video ref={currentVideoRef} muted className="w-full h-full object-cover" />
-            <div className="absolute bottom-4 left-4 bg-black/50 text-white px-3 py-1 rounded text-sm backdrop-blur-md">
-              You (Local)
+            <div className="absolute bottom-4 left-4 bg-white/90 text-slate-800 px-4 py-1.5 rounded-lg text-sm font-bold backdrop-blur-md shadow-sm">
+              Local Feed (Doctor)
             </div>
           </div>
-          <div className="relative bg-slate-900 rounded-xl overflow-hidden aspect-video shadow-inner flex items-center justify-center">
+          <div className="relative bg-slate-900 rounded-2xl overflow-hidden aspect-video shadow-lg border-4 border-slate-100 flex items-center justify-center">
             <video ref={remoteVideoRef} className="w-full h-full object-cover absolute inset-0 z-0" />
             {!remoteVideoRef.current?.srcObject && (
-              <span className="text-slate-500 z-10">Waiting for connection...</span>
+              <span className="text-slate-400 font-medium z-10 flex flex-col items-center">
+                <span className="text-4xl mb-2">📡</span>
+                Waiting for patient connection...
+              </span>
             )}
-            <div className="absolute bottom-4 left-4 bg-black/50 text-white px-3 py-1 rounded text-sm backdrop-blur-md z-10">
-              Remote User
+            <div className="absolute bottom-4 left-4 bg-white/90 text-slate-800 px-4 py-1.5 rounded-lg text-sm font-bold backdrop-blur-md z-10 shadow-sm">
+              Remote Feed (Patient)
             </div>
           </div>
         </div>
