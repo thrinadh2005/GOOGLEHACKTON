@@ -4,7 +4,7 @@ services:
     name: smart-health-backend
     env: docker
     rootDir: smart-health/backend
-    dockerfilePath: ./Dockerfile
+    dockerfilePath: smart-health/backend/Dockerfile
     plan: free
     envVars:
       - key: DATABASE_URL
