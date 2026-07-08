@@ -7,8 +7,10 @@ import numpy as np
 import os
 from contextlib import asynccontextmanager
 
-from database import patients_collection
+from database import patients_collection, db
 from chatbot import get_triage_response
+from motor.motor_asyncio import AsyncIOMotorGridFSBucket
+import io
 
 # Load AI Model
 model = None
@@ -16,13 +18,25 @@ model = None
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     global model
-    model_path = "model/disease_model.pkl"
-    if os.path.exists(model_path):
-        with open(model_path, "rb") as f:
-            model = pickle.load(f)
-        print("AI Model loaded successfully.")
-    else:
-        print("WARNING: AI Model not found. Run train_model.py first.")
+    print("Fetching AI model from MongoDB GridFS...")
+    try:
+        fs = AsyncIOMotorGridFSBucket(db)
+        # Find the model file
+        cursor = fs.find({"filename": "disease_model.pkl"})
+        grid_out = None
+        async for f in cursor:
+            grid_out = f
+            break
+            
+        if grid_out:
+            model_bytes = await grid_out.read()
+            model = pickle.loads(model_bytes)
+            print("AI Model loaded successfully from MongoDB.")
+        else:
+            print("WARNING: AI Model not found in MongoDB GridFS. Predictions will fail.")
+    except Exception as e:
+        print(f"Error loading model from MongoDB: {e}")
+        
     yield
     # Cleanup if needed
     model = None
