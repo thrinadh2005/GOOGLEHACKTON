@@ -20,7 +20,7 @@
 ### 2. 🔐 Enterprise Security (JWT Authentication)
 - **FastAPI OAuth2:** The entire backend is protected via secure JSON Web Tokens (JWT). 
 - **Bcrypt Hashing:** Passwords are cryptographically hashed.
-- **Protected Routes:** All patient records and AI prediction endpoints are strictly locked down to authorized medical professionals.
+- **Protected Routes:** All patient records and AI prediction endpoints are strictly locked down to authorized medical professionals. The frontend features a secure Glassmorphic Login portal that guards all Dashboard access.
 
 ### 3. 📹 Real-Time Telemedicine (WebRTC)
 - **Peer-to-Peer Video:** A high-end WebRTC implementation using `PeerJS` allows doctors and patients to connect instantly via low-latency, encrypted video streams directly in the browser.
@@ -39,35 +39,28 @@
 |-----------|------------|-------------|
 | **Frontend** | **Next.js 14** (App Router) | Server-Side Rendering, TailwindCSS, Glassmorphism UI |
 | **Backend** | **FastAPI** (Python 3.11) | Async API, Dependency Injection, Swagger Documentation |
-| **Database** | **MongoDB Atlas** | Distributed NoSQL Cloud Database |
+| **Database** | **MongoDB Atlas** | Distributed NoSQL Cloud Database & GridFS Binary Storage |
 | **AI / ML** | **Scikit-Learn / Pandas** | Random Forest Classifier, Groq LLM |
 | **WebRTC** | **PeerJS** | Signaling and Peer-to-Peer Video streaming |
 | **Security** | **PyJWT / Passlib** | OAuth2 Bearer Token Authentication |
 
 ---
 
-## 🚀 Deployment Guide
+## 🚀 1-Click Deployment (Render.com)
 
-This project is built for zero-downtime deployment on modern serverless infrastructure.
+This project features true **Infrastructure as Code (IaC)**. The entire stack (Backend + Frontend) can be deployed simultaneously with a single click using the included `render.yaml` Blueprint.
 
-### 1. Database (MongoDB Atlas)
-1. Create a free cluster on MongoDB Atlas.
-2. Obtain the connection string.
-
-### 2. Backend (Render.com / Google Cloud Run)
-1. Link this repository to Render as a **Web Service**.
-2. Select the `smart-health/backend` directory.
-3. Add Environment Variables:
+### How to Deploy:
+1. Create a free cluster on **MongoDB Atlas** and get your connection string.
+2. Go to your [Render Dashboard](https://dashboard.render.com/).
+3. Click **"New +" -> "Blueprint"**.
+4. Connect this GitHub repository.
+5. Render will automatically detect `render.yaml` and queue both the `smart-health-backend` (Docker) and `smart-health-frontend` (Node) for deployment.
+6. Click **Apply**.
+7. In the Render Dashboard, navigate to the **Backend Service -> Environment Variables** and enter:
    - `DATABASE_URL`: `mongodb://<user>:<password>@<atlas-cluster-url>/smarthealth`
-   - `GROQ_API_KEY`: Your LLM API Key
-   - `SECRET_KEY`: A random secure string for JWT encoding.
-
-### 3. Frontend (Vercel)
-1. Link this repository to **Vercel**.
-2. Select the `smart-health/frontend` directory.
-3. Framework Preset: **Next.js**.
-4. Add Environment Variables:
-   - `NEXT_PUBLIC_API_URL`: The URL of your live Render backend.
+   - `SECRET_KEY`: Your secure JWT secret (e.g., `super-secret-key-for-hackathon-only`)
+8. Render will automatically link the Backend URL to the Frontend!
 
 ---
 
@@ -76,11 +69,10 @@ This project is built for zero-downtime deployment on modern serverless infrastr
 ### Prerequisites
 - Node.js (v18+)
 - Python (v3.10+)
-- Docker (Optional)
 
 ### Running the Backend
 ```bash
-cd backend
+cd smart-health/backend
 python -m venv venv
 source venv/Scripts/activate # (Windows)
 pip install -r requirements.txt
@@ -89,13 +81,13 @@ uvicorn main:app --reload --port 8000
 
 ### Running the Frontend
 ```bash
-cd frontend
+cd smart-health/frontend
 npm install
 npm run dev
 ```
 
 ### Testing Credentials
-To access the secure dashboard locally, use the mock doctor credentials:
+To access the secure dashboard locally or on the live deployment, use the mock doctor credentials:
 - **Email:** `admin@smarthealth.com`
 - **Password:** `password123`
 
