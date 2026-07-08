@@ -17,13 +17,13 @@ export default function Chatbot() {
 
     try {
       const backendUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-      const response = await fetch(`${backendUrl}/api/chatbot/triage`, {
+      const response = await fetch(`${backendUrl}/api/chat/triage`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message })
       });
       const data = await response.json();
-      setHistory([...newHistory, { role: "assistant", content: data.response }]);
+      setHistory([...newHistory, { role: "assistant", content: data.reply }]);
     } catch (e) {
       setHistory([...newHistory, { role: "assistant", content: "Error connecting to LLaMA3 Triage API." }]);
     }
