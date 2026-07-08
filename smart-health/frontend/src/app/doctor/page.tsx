@@ -1,5 +1,6 @@
 "use client";
 import { Users, AlertCircle, Clock, Video, FileText, CheckCircle2 } from "lucide-react";
+import Link from "next/link";
 
 export default function DoctorDashboard() {
   const triageQueue = [
@@ -87,12 +88,12 @@ export default function DoctorDashboard() {
                     </div>
                   </td>
                   <td className="p-4 pr-6 text-right space-x-2">
-                    <button className="p-2 bg-slate-100 text-slate-600 hover:bg-slate-200 rounded-lg transition-colors tooltip" title="View EHR">
+                    <Link href="/doctor/ehr" className="inline-block p-2 bg-slate-100 text-slate-600 hover:bg-slate-200 rounded-lg transition-colors tooltip" title="View EHR">
                       <FileText size={18} />
-                    </button>
-                    <button className="p-2 bg-blue-100 text-blue-600 hover:bg-blue-200 rounded-lg transition-colors tooltip" title="Start Consult">
+                    </Link>
+                    <Link href="/dashboard/consultation" className="inline-block p-2 bg-blue-100 text-blue-600 hover:bg-blue-200 rounded-lg transition-colors tooltip" title="Start Consult">
                       <Video size={18} />
-                    </button>
+                    </Link>
                   </td>
                 </tr>
               ))}

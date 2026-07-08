@@ -18,9 +18,9 @@ export default function DoctorLayout({
 
   const navLinks = [
     { name: "Triage Queue", href: "/doctor", icon: Users },
-    { name: "EHR Lookup", href: "#", icon: FileText },
-    { name: "Telemedicine", href: "#", icon: PhoneCall },
-    { name: "Settings", href: "#", icon: Settings },
+    { name: "EHR Lookup", href: "/doctor/ehr", icon: FileText },
+    { name: "Telemedicine", href: "/dashboard/consultation", icon: PhoneCall },
+    { name: "Settings", href: "/dashboard/settings", icon: Settings },
   ];
 
   return (

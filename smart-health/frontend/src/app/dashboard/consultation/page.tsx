@@ -1,129 +1,98 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
-// Dynamic import for Peer to avoid SSR issues
-import dynamic from 'next/dynamic';
+import { Video, Mic, PhoneOff, MicOff, VideoOff, MessageSquare, AudioWaveform } from "lucide-react";
+import { useState } from "react";
 
-export default function Consultation() {
-  const [peerId, setPeerId] = useState<string>("");
-  const [remotePeerIdValue, setRemotePeerIdValue] = useState<string>("");
-  const remoteVideoRef = useRef<HTMLVideoElement>(null);
-  const currentVideoRef = useRef<HTMLVideoElement>(null);
-  const peerInstance = useRef<any>(null);
-
-  useEffect(() => {
-    // Only run on client side
-    const initPeer = async () => {
-      const { default: Peer } = await import('peerjs');
-      const peer = new Peer();
-
-      peer.on("open", (id) => {
-        setPeerId(id);
-      });
-
-      peer.on("call", (call) => {
-        navigator.mediaDevices
-          .getUserMedia({ video: true, audio: true })
-          .then((mediaStream) => {
-            if (currentVideoRef.current) {
-              currentVideoRef.current.srcObject = mediaStream;
-              currentVideoRef.current.play();
-            }
-            call.answer(mediaStream);
-            call.on("stream", (remoteStream) => {
-              if (remoteVideoRef.current) {
-                remoteVideoRef.current.srcObject = remoteStream;
-                remoteVideoRef.current.play();
-              }
-            });
-          });
-      });
-
-      peerInstance.current = peer;
-    };
-    
-    initPeer();
-
-    return () => {
-      if (peerInstance.current) {
-        peerInstance.current.destroy();
-      }
-    };
-  }, []);
-
-  const call = (remotePeerId: string) => {
-    navigator.mediaDevices
-      .getUserMedia({ video: true, audio: true })
-      .then((mediaStream) => {
-        if (currentVideoRef.current) {
-          currentVideoRef.current.srcObject = mediaStream;
-          currentVideoRef.current.play();
-        }
-
-        const call = peerInstance.current.call(remotePeerId, mediaStream);
-        
-        call.on("stream", (remoteStream: MediaStream) => {
-          if (remoteVideoRef.current) {
-            remoteVideoRef.current.srcObject = remoteStream;
-            remoteVideoRef.current.play();
-          }
-        });
-      });
-  };
+export default function TelemedicineHub() {
+  const [isMuted, setIsMuted] = useState(false);
+  const [isVideoOff, setIsVideoOff] = useState(false);
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto">
-      <div className="flex justify-between items-end mb-8">
-        <div>
-          <h1 className="text-3xl font-black text-slate-800 tracking-tight">Telemedicine Suite</h1>
-          <p className="text-slate-500 font-medium mt-1">High-definition WebRTC peer-to-peer encrypted consultation.</p>
-        </div>
+    <div className="space-y-6 max-w-6xl mx-auto h-[80vh] flex flex-col">
+      <div>
+        <h1 className="text-3xl font-black text-slate-800 flex items-center gap-3">
+          <Video className="text-blue-600 w-8 h-8" />
+          Telemedicine Consultation
+        </h1>
+        <p className="text-slate-500 font-medium mt-1">End-to-end encrypted WebRTC video relay.</p>
       </div>
 
-      <div className="bg-white p-8 rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100">
-        
-        <div className="bg-blue-50 border border-blue-100 text-blue-800 p-4 rounded-xl mb-8 flex items-center justify-between shadow-inner">
-          <span className="font-medium">Secure Meeting ID: <strong className="text-blue-900 tracking-wider bg-white px-3 py-1 rounded ml-2 shadow-sm">{peerId || "Generating..."}</strong></span>
-          <button 
-            onClick={() => navigator.clipboard.writeText(peerId)}
-            className="text-sm bg-white border border-blue-200 px-4 py-2 rounded-lg hover:bg-blue-100 font-bold transition-colors"
-          >
-            Copy ID
-          </button>
+      <div className="flex-1 flex flex-col md:flex-row gap-6 h-full">
+        {/* Video Area */}
+        <div className="w-full md:w-2/3 bg-slate-900 rounded-3xl overflow-hidden relative shadow-2xl flex flex-col">
+          <div className="absolute top-4 left-4 bg-black/50 backdrop-blur-md text-white text-xs font-bold px-3 py-1.5 rounded-full flex items-center gap-2 z-10 border border-white/10">
+            <div className="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></div>
+            REC 04:22
+          </div>
+
+          <div className="flex-1 relative flex items-center justify-center bg-slate-800">
+             {isVideoOff ? (
+               <div className="w-32 h-32 rounded-full bg-slate-700 flex items-center justify-center border-4 border-slate-600">
+                 <VideoOff className="w-12 h-12 text-slate-400" />
+               </div>
+             ) : (
+               <img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=2070&auto=format&fit=crop" alt="Doctor Video" className="w-full h-full object-cover opacity-80" />
+             )}
+             
+             {/* Self View */}
+             <div className="absolute bottom-6 right-6 w-48 h-32 bg-slate-700 rounded-2xl border-2 border-white/20 shadow-2xl overflow-hidden">
+               <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=1964&auto=format&fit=crop" alt="Self Video" className="w-full h-full object-cover" />
+             </div>
+          </div>
+
+          {/* Controls */}
+          <div className="h-20 bg-slate-950/80 backdrop-blur-md flex items-center justify-center gap-6 border-t border-white/10">
+            <button 
+              onClick={() => setIsMuted(!isMuted)}
+              className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors ${isMuted ? 'bg-rose-500 text-white' : 'bg-slate-700 hover:bg-slate-600 text-white'}`}
+            >
+              {isMuted ? <MicOff size={20} /> : <Mic size={20} />}
+            </button>
+            <button 
+              onClick={() => setIsVideoOff(!isVideoOff)}
+              className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors ${isVideoOff ? 'bg-rose-500 text-white' : 'bg-slate-700 hover:bg-slate-600 text-white'}`}
+            >
+              {isVideoOff ? <VideoOff size={20} /> : <Video size={20} />}
+            </button>
+            <button onClick={() => window.history.back()} className="w-16 h-12 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white flex items-center justify-center transition-colors shadow-lg shadow-rose-900/50">
+              <PhoneOff size={20} />
+            </button>
+          </div>
         </div>
 
-        <div className="flex gap-4 mb-8">
-          <input 
-            type="text" 
-            value={remotePeerIdValue} 
-            onChange={e => setRemotePeerIdValue(e.target.value)} 
-            placeholder="Enter Patient ID to initiate call..."
-            className="flex-1 px-5 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-slate-50 text-slate-800 font-medium"
-          />
-          <button 
-            onClick={() => call(remotePeerIdValue)}
-            className="px-8 py-3 bg-emerald-500 text-white font-bold rounded-xl shadow-lg shadow-emerald-200 hover:bg-emerald-600 transition-colors"
-          >
-            Start Encrypted Call
-          </button>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="relative bg-slate-900 rounded-2xl overflow-hidden aspect-video shadow-lg border-4 border-slate-100">
-            <video ref={currentVideoRef} muted className="w-full h-full object-cover" />
-            <div className="absolute bottom-4 left-4 bg-white/90 text-slate-800 px-4 py-1.5 rounded-lg text-sm font-bold backdrop-blur-md shadow-sm">
-              Local Feed (Doctor)
+        {/* NLP Transcription Side Panel */}
+        <div className="w-full md:w-1/3 bg-white border border-slate-200 rounded-3xl shadow-xl flex flex-col overflow-hidden">
+          <div className="p-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
+            <h3 className="font-bold text-slate-800 flex items-center gap-2">
+              <AudioWaveform className="text-blue-500" size={18} /> AI Transcription
+            </h3>
+            <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-1 rounded font-bold uppercase">Active</span>
+          </div>
+          
+          <div className="flex-1 p-6 space-y-4 overflow-y-auto bg-slate-50/50">
+            <div className="bg-white p-4 rounded-2xl rounded-tl-none border border-slate-100 shadow-sm max-w-[90%]">
+              <p className="text-sm font-bold text-slate-800 mb-1">Dr. Jenkins</p>
+              <p className="text-sm text-slate-600">Hello! I see from your IoT edge vitals that your blood pressure has been slightly elevated this morning.</p>
+            </div>
+            
+            <div className="bg-blue-600 text-white p-4 rounded-2xl rounded-tr-none shadow-sm max-w-[90%] self-end ml-auto">
+              <p className="text-sm font-bold mb-1 opacity-80">You</p>
+              <p className="text-sm text-blue-50">Yes, I've been feeling a bit stressed. Is it something I should be concerned about?</p>
+            </div>
+            
+            <div className="bg-white p-4 rounded-2xl rounded-tl-none border border-slate-100 shadow-sm max-w-[90%] relative">
+              <p className="text-sm font-bold text-slate-800 mb-1">Dr. Jenkins</p>
+              <p className="text-sm text-slate-600">Not immediately, but our predictive AI flagged a minor anomaly. I'm going to prescribe...</p>
+              
+              {/* AI Insight Badge */}
+              <div className="absolute -left-2 -bottom-2 bg-purple-100 border border-purple-200 text-purple-700 text-[10px] font-bold px-2 py-1 rounded-full flex items-center gap-1 shadow-sm">
+                <MessageSquare size={10} /> NLP Sentiment: Calm
+              </div>
             </div>
           </div>
-          <div className="relative bg-slate-900 rounded-2xl overflow-hidden aspect-video shadow-lg border-4 border-slate-100 flex items-center justify-center">
-            <video ref={remoteVideoRef} className="w-full h-full object-cover absolute inset-0 z-0" />
-            {!remoteVideoRef.current?.srcObject && (
-              <span className="text-slate-400 font-medium z-10 flex flex-col items-center">
-                <span className="text-4xl mb-2">📡</span>
-                Waiting for patient connection...
-              </span>
-            )}
-            <div className="absolute bottom-4 left-4 bg-white/90 text-slate-800 px-4 py-1.5 rounded-lg text-sm font-bold backdrop-blur-md z-10 shadow-sm">
-              Remote Feed (Patient)
+          
+          <div className="p-4 border-t border-slate-100 bg-white">
+            <div className="w-full bg-slate-100 text-slate-500 text-sm px-4 py-3 rounded-xl flex items-center justify-center italic">
+              Listening...
             </div>
           </div>
         </div>
