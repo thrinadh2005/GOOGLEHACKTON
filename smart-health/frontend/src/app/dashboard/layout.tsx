@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
-import { Activity, Package, LayoutDashboard, PhoneCall } from "lucide-react";
+import { Activity, Package, LayoutDashboard, PhoneCall, Network, ShieldCheck } from "lucide-react";
 
 export default function DashboardLayout({
   children,
@@ -28,18 +28,20 @@ export default function DashboardLayout({
 
   const navLinks = [
     { name: "Overview", href: "/dashboard", icon: LayoutDashboard },
-    { name: "IoT Vitals", href: "/dashboard/vitals", icon: Activity },
-    { name: "Supply Chain", href: "/dashboard/inventory", icon: Package },
+    { name: "Vitals", href: "/dashboard/vitals", icon: Activity },
+    { name: "Inventory", href: "/dashboard/inventory", icon: Package },
     { name: "Telemedicine", href: "/dashboard/consultation", icon: PhoneCall },
+    { name: "AI Analytics", href: "/dashboard/analytics", icon: Network },
+    { name: "Compliance", href: "/dashboard/settings", icon: ShieldCheck },
   ];
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans">
       
       {/* Top Navigation Bar */}
-      <header className="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between sticky top-0 z-50 shadow-sm print:hidden">
-        <div className="flex items-center gap-8">
-          <div className="flex items-center gap-3">
+      <header className="bg-white border-b border-slate-200 px-6 py-4 flex flex-col md:flex-row items-center justify-between sticky top-0 z-50 shadow-sm print:hidden gap-4 md:gap-0">
+        <div className="flex items-center gap-8 w-full md:w-auto overflow-x-auto pb-2 md:pb-0">
+          <div className="flex items-center gap-3 shrink-0">
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 to-emerald-500 flex items-center justify-center text-white font-bold shadow-md">
               +
             </div>
@@ -48,7 +50,7 @@ export default function DashboardLayout({
             </h2>
           </div>
           
-          <nav className="hidden md:flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200">
+          <nav className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200 shrink-0">
             {navLinks.map((link) => {
               const Icon = link.icon;
               const isActive = pathname === link.href;
@@ -56,7 +58,7 @@ export default function DashboardLayout({
                 <Link 
                   key={link.name} 
                   href={link.href}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg font-bold text-sm transition-all ${
+                  className={`flex items-center gap-2 px-3 py-2 rounded-lg font-bold text-sm transition-all ${
                     isActive ? "bg-white text-blue-600 shadow-sm" : "text-slate-500 hover:text-slate-700 hover:bg-slate-200/50"
                   }`}
                 >
@@ -68,12 +70,12 @@ export default function DashboardLayout({
           </nav>
         </div>
         
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4 shrink-0">
           <button 
             onClick={handleVoiceSummary}
             className="flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-700 hover:bg-blue-100 rounded-lg font-bold text-sm transition-colors"
           >
-            🔊 Voice Summary
+            🔊 Voice
           </button>
           
           <button 
@@ -85,17 +87,13 @@ export default function DashboardLayout({
           
           <div className="h-8 w-px bg-slate-200 mx-2"></div>
           
-          <button className="font-bold text-slate-600 hover:text-blue-600 transition-colors">
-            Profile
-          </button>
-          
           <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center font-black text-blue-600 border-2 border-slate-200 shadow-inner">
             G
           </div>
           
           <button 
             onClick={handleLogout}
-            className="font-bold text-rose-500 hover:text-rose-700 transition-colors ml-4"
+            className="font-bold text-rose-500 hover:text-rose-700 transition-colors ml-2"
           >
             Logout
           </button>
@@ -103,7 +101,7 @@ export default function DashboardLayout({
       </header>
 
       {/* Main Content Area */}
-      <main className="flex-1 p-8 max-w-7xl mx-auto w-full">
+      <main className="flex-1 p-4 md:p-8 max-w-7xl mx-auto w-full">
         {children}
       </main>
       
