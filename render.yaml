@@ -1,0 +1,27 @@
+services:
+  # Backend FastAPI Service
+  - type: web
+    name: smart-health-backend
+    env: docker
+    rootDir: smart-health/backend
+    plan: free
+    envVars:
+      - key: DATABASE_URL
+        sync: false # Requires manual entry in Render dashboard for security
+      - key: SECRET_KEY
+        sync: false # Requires manual entry in Render dashboard for security
+
+  # Frontend Next.js Service
+  - type: web
+    name: smart-health-frontend
+    env: node
+    rootDir: smart-health/frontend
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm run start
+    envVars:
+      - key: NEXT_PUBLIC_API_URL
+        fromService:
+          type: web
+          name: smart-health-backend
+          envVarKey: RENDER_EXTERNAL_URL
