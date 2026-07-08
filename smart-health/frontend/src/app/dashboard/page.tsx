@@ -14,7 +14,8 @@ export default function Dashboard() {
     setPrediction(null);
     try {
       const token = localStorage.getItem('smart_health_token');
-      const res = await fetch(`http://localhost:8000/api/patients/${patientId}`, {
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+      const res = await fetch(`${API_URL}/api/patients/${patientId}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -39,7 +40,8 @@ export default function Dashboard() {
     setLoading(true);
     try {
       const token = localStorage.getItem('smart_health_token');
-      const res = await fetch(`http://localhost:8000/api/ai/predict-disease`, {
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+      const res = await fetch(`${API_URL}/api/ai/predict-disease`, {
         method: "POST",
         headers: { 
           "Content-Type": "application/json",
