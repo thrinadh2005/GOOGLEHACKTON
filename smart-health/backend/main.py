@@ -1,10 +1,12 @@
-from fastapi import FastAPI, HTTPException, Depends
+from fastapi import FastAPI, HTTPException, Depends, WebSocket, status
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from typing import List, Optional
 import pickle
 import numpy as np
 import os
+import asyncio
+import random
 from contextlib import asynccontextmanager
 
 from database import patients_collection, db
@@ -153,3 +155,23 @@ async def predict_disease(data: PatientData):
 def triage_chat(chat: ChatMessage):
     response = get_triage_response(chat.message)
     return {"reply": response}
+
+# --- IoT WebSocket Endpoint ---
+
+@app.websocket("/api/ws/vitals")
+async def websocket_vitals(websocket: WebSocket):
+    await websocket.accept()
+    try:
+        while True:
+            # Simulate real-time Edge IoT data
+            vitals = {
+                "heartRate": random.randint(60, 100),
+                "bloodPressureSys": random.randint(110, 130),
+                "bloodPressureDia": random.randint(70, 85),
+                "spo2": random.randint(95, 100),
+                "temperature": round(random.uniform(97.5, 99.5), 1)
+            }
+            await websocket.send_json(vitals)
+            await asyncio.sleep(1) # Stream every second
+    except Exception as e:
+        print(f"WebSocket closed: {e}")

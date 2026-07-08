@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
+import { Activity, Package, LayoutDashboard, PhoneCall } from "lucide-react";
 
 export default function DashboardLayout({
   children,
@@ -8,10 +9,9 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const router = useRouter();
+  const pathname = usePathname();
 
-  const handlePrint = () => {
-    window.print();
-  };
+  const handlePrint = () => window.print();
 
   const handleVoiceSummary = () => {
     const text = "Welcome back, BANNU! Here is your health overview for today. You have 0 scheduled medicines, 0 upcoming appointments, and 0 alerts. All medicines are within safe dates.";
@@ -26,18 +26,46 @@ export default function DashboardLayout({
     router.push('/login');
   };
 
+  const navLinks = [
+    { name: "Overview", href: "/dashboard", icon: LayoutDashboard },
+    { name: "IoT Vitals", href: "/dashboard/vitals", icon: Activity },
+    { name: "Supply Chain", href: "/dashboard/inventory", icon: Package },
+    { name: "Telemedicine", href: "/dashboard/consultation", icon: PhoneCall },
+  ];
+
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans">
       
       {/* Top Navigation Bar */}
       <header className="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between sticky top-0 z-50 shadow-sm print:hidden">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 to-emerald-500 flex items-center justify-center text-white font-bold shadow-md">
-            +
+        <div className="flex items-center gap-8">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 to-emerald-500 flex items-center justify-center text-white font-bold shadow-md">
+              +
+            </div>
+            <h2 className="text-2xl font-black text-slate-800 tracking-tight">
+              SmartCare
+            </h2>
           </div>
-          <h2 className="text-2xl font-black text-slate-800 tracking-tight">
-            SmartCare Dashboard
-          </h2>
+          
+          <nav className="hidden md:flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200">
+            {navLinks.map((link) => {
+              const Icon = link.icon;
+              const isActive = pathname === link.href;
+              return (
+                <Link 
+                  key={link.name} 
+                  href={link.href}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg font-bold text-sm transition-all ${
+                    isActive ? "bg-white text-blue-600 shadow-sm" : "text-slate-500 hover:text-slate-700 hover:bg-slate-200/50"
+                  }`}
+                >
+                  <Icon size={16} />
+                  {link.name}
+                </Link>
+              )
+            })}
+          </nav>
         </div>
         
         <div className="flex items-center gap-4">

@@ -8,5 +8,6 @@ scikit-learn
 numpy
 pandas
 python-jose[cryptography]
-bcrypt
+bcrypt==3.2.2
+websockets
 python-multipart
