@@ -5,7 +5,7 @@ from motor.motor_asyncio import AsyncIOMotorClient
 MONGO_URL = os.getenv("DATABASE_URL", "mongodb://localhost:27017/smarthealth")
 
 client = AsyncIOMotorClient(MONGO_URL)
-db = client.get_default_database()
+db = client.get_database("smarthealth")
 
 # Collections
 patients_collection = db.get_collection("patients")
