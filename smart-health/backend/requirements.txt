@@ -8,6 +8,5 @@ scikit-learn
 numpy
 pandas
 python-jose[cryptography]
-passlib[bcrypt]
-bcrypt==3.2.2
+bcrypt
 python-multipart
