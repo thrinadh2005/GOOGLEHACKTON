@@ -108,8 +108,8 @@ async def create_patient(patient: PatientData, current_user: dict = Depends(get_
 @app.get("/api/patients/{patient_id}")
 async def get_patient(patient_id: str, current_user: dict = Depends(get_current_user)):
     patient = await patients_collection.find_one({"patient_id": patient_id})
-        }
-    
+    if not patient:
+        raise HTTPException(status_code=404, detail="Patient not found")
     # Remove MongoDB internal _id before returning
     patient.pop("_id", None)
     return patient
