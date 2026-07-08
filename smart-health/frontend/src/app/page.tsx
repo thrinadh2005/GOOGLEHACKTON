@@ -39,9 +39,12 @@ export default function Home() {
             <p className="mt-6 text-xl text-slate-300 max-w-3xl">
               Enterprise-grade health intelligence. Seamlessly integrating IoT edge devices, federated learning, and blockchain supply chains to deliver unparalleled patient care.
             </p>
-            <div className="mt-10 flex space-x-4">
-              <Link href="/dashboard" className="px-8 py-4 border border-transparent text-base font-medium rounded-full text-white bg-blue-600 hover:bg-blue-700 md:text-lg transition-all shadow-lg shadow-blue-500/30">
-                Launch Dashboard
+            <div className="mt-10 flex flex-wrap gap-4">
+              <Link href="/login" className="px-8 py-4 border border-transparent text-base font-medium rounded-full text-white bg-blue-600 hover:bg-blue-700 md:text-lg transition-all shadow-lg shadow-blue-500/30">
+                Patient Login
+              </Link>
+              <Link href="/admin" className="px-8 py-4 border border-rose-500/50 text-base font-medium rounded-full text-rose-100 bg-rose-500/10 hover:bg-rose-500/20 md:text-lg backdrop-blur-sm transition-all shadow-lg shadow-rose-500/20">
+                Admin Portal
               </Link>
               <Link href="#architecture" className="px-8 py-4 border border-white/20 text-base font-medium rounded-full text-white bg-white/5 hover:bg-white/10 md:text-lg backdrop-blur-sm transition-all">
                 View Architecture
