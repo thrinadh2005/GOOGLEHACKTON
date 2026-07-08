@@ -11,6 +11,9 @@ from database import patients_collection, db
 from chatbot import get_triage_response
 from motor.motor_asyncio import AsyncIOMotorGridFSBucket
 import io
+from fastapi.security import OAuth2PasswordRequestForm
+from auth import Token, verify_password, create_access_token, ACCESS_TOKEN_EXPIRE_MINUTES, MOCK_USER_DB, get_current_user
+from datetime import timedelta
 
 # Load AI Model
 model = None
@@ -64,13 +67,35 @@ class ChatMessage(BaseModel):
     message: str
 
 @app.get("/")
-def read_root():
-    return {"status": "ok", "message": "Smart Health API Phase 2 is running"}
+async def root():
+    return {"message": "Welcome to Smart Health API"}
+
+@app.post("/api/auth/login", response_model=Token)
+async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
+    user = MOCK_USER_DB.get(form_data.username)
+    if not user or not verify_password(form_data.password, user["password_hash"]):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": user["username"]}, expires_delta=access_token_expires
+    )
+    return {"access_token": access_token, "token_type": "bearer"}
 
 # --- MongoDB Endpoints ---
 
+@app.get("/api/patients")
+async def get_patients(current_user: dict = Depends(get_current_user)):
+    patients = await patients_collection.find().to_list(100)
+    for p in patients:
+        p["_id"] = str(p["_id"])
+    return {"patients": patients}
+
 @app.post("/api/patients")
-async def create_patient(patient: PatientData):
+async def create_patient(patient: PatientData, current_user: dict = Depends(get_current_user)):
     # Insert into MongoDB
     patient_dict = patient.model_dump()
     existing = await patients_collection.find_one({"patient_id": patient.patient_id})
@@ -81,20 +106,8 @@ async def create_patient(patient: PatientData):
     return {"status": "success", "id": str(result.inserted_id)}
 
 @app.get("/api/patients/{patient_id}")
-async def get_patient(patient_id: str):
+async def get_patient(patient_id: str, current_user: dict = Depends(get_current_user)):
     patient = await patients_collection.find_one({"patient_id": patient_id})
-    if not patient:
-        # Fallback to mock for POC if not found in DB
-        if patient_id == "error":
-            raise HTTPException(status_code=404, detail="Patient not found")
-        return {
-            "patient_id": patient_id,
-            "name": f"Mock Patient {patient_id}",
-            "age": 45,
-            "sys_bp": 120,
-            "dia_bp": 80,
-            "heart_rate": 72,
-            "cholesterol": 190
         }
     
     # Remove MongoDB internal _id before returning

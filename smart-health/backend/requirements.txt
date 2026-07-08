@@ -7,3 +7,6 @@ cors
 scikit-learn
 numpy
 pandas
+PyJWT
+passlib[bcrypt]
+python-multipart
