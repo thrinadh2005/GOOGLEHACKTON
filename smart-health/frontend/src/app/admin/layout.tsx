@@ -16,9 +16,9 @@ export default function AdminLayout({
 
   const navLinks = [
     { name: "Command Center", href: "/admin", icon: LayoutDashboard },
-    { name: "User Management", href: "#", icon: Users },
-    { name: "Node Telemetry", href: "#", icon: Activity },
-    { name: "Compliance Logs", href: "#", icon: ShieldCheck },
+    { name: "User Management", href: "/admin", icon: Users },
+    { name: "Node Telemetry", href: "/dashboard/vitals", icon: Activity },
+    { name: "Compliance Logs", href: "/dashboard/settings", icon: ShieldCheck },
   ];
 
   return (

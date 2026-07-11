@@ -1,4 +1,5 @@
 "use client";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { Activity, Package, LayoutDashboard, PhoneCall, Network, ShieldCheck } from "lucide-react";
@@ -10,6 +11,11 @@ export default function DashboardLayout({
 }) {
   const router = useRouter();
   const pathname = usePathname();
+  const [userRole, setUserRole] = useState<string | null>(null);
+
+  useEffect(() => {
+    setUserRole(localStorage.getItem('userRole'));
+  }, []);
 
   const handlePrint = () => window.print();
 
@@ -86,6 +92,19 @@ export default function DashboardLayout({
           </button>
           
           <div className="h-8 w-px bg-slate-200 mx-2"></div>
+
+          {userRole === 'doctor' && (
+            <Link href="/doctor" className="text-sm font-bold text-emerald-600 hover:text-emerald-700 transition-colors mr-2">
+              ← Return to Triage
+            </Link>
+          )}
+          
+          {userRole === 'admin' && (
+            <Link href="/admin" className="text-sm font-bold text-purple-600 hover:text-purple-700 transition-colors mr-2">
+              ← Return to Command Center
+            </Link>
+          )}
+          
           
           <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center font-black text-blue-600 border-2 border-slate-200 shadow-inner">
             G

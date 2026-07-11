@@ -6,7 +6,7 @@ import { Stethoscope, User, ShieldCheck } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
-  const [role, setRole] = useState<"patient" | "doctor" | null>(null);
+  const [role, setRole] = useState<"patient" | "doctor" | "admin" | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleLoginSuccess = (credentialResponse: any) => {
@@ -14,10 +14,14 @@ export default function LoginPage() {
     // Mock processing delay for demo
     setTimeout(() => {
       document.cookie = `token=${credentialResponse.credential}; path=/; max-age=3600`;
-      
+      // Store role to allow smooth cross-portal navigation
+      if (role) localStorage.setItem('userRole', role);
+
       // Route based on selected role!
       if (role === "doctor") {
         router.push("/doctor");
+      } else if (role === "admin") {
+        router.push("/admin");
       } else {
         router.push("/dashboard");
       }
@@ -31,7 +35,7 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
-      <div className="bg-white max-w-4xl w-full rounded-3xl shadow-2xl shadow-slate-200/50 flex flex-col md:flex-row overflow-hidden border border-slate-100">
+      <div className="bg-white max-w-5xl w-full rounded-3xl shadow-2xl shadow-slate-200/50 flex flex-col md:flex-row overflow-hidden border border-slate-100">
         
         {/* Left Side - Branding */}
         <div className="w-full md:w-5/12 bg-gradient-to-br from-blue-600 to-emerald-500 p-12 text-white flex flex-col justify-between">
@@ -67,30 +71,43 @@ export default function LoginPage() {
               <h2 className="text-3xl font-black text-slate-800 mb-2">Select Your Role</h2>
               <p className="text-slate-500 font-medium mb-8">Please identify yourself to access the correct portal.</p>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <button 
                   onClick={() => setRole("patient")}
-                  className="p-6 border-2 border-slate-100 rounded-2xl flex flex-col items-center gap-4 hover:border-blue-500 hover:bg-blue-50 transition-all group text-left"
+                  className="p-4 lg:p-6 border-2 border-slate-100 rounded-2xl flex flex-col items-center gap-4 hover:border-blue-500 hover:bg-blue-50 transition-all group text-center"
                 >
                   <div className="w-16 h-16 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
                     <User size={32} />
                   </div>
                   <div className="text-center">
                     <h3 className="font-bold text-slate-800 text-lg">I am a Patient</h3>
-                    <p className="text-sm text-slate-500 mt-1">Access your health records and appointments.</p>
+                    <p className="text-sm text-slate-500 mt-1">Access your health records.</p>
                   </div>
                 </button>
 
                 <button 
                   onClick={() => setRole("doctor")}
-                  className="p-6 border-2 border-slate-100 rounded-2xl flex flex-col items-center gap-4 hover:border-emerald-500 hover:bg-emerald-50 transition-all group text-left"
+                  className="p-4 lg:p-6 border-2 border-slate-100 rounded-2xl flex flex-col items-center gap-4 hover:border-emerald-500 hover:bg-emerald-50 transition-all group text-center"
                 >
                   <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
                     <Stethoscope size={32} />
                   </div>
                   <div className="text-center">
                     <h3 className="font-bold text-slate-800 text-lg">Medical Staff</h3>
-                    <p className="text-sm text-slate-500 mt-1">Access patient triage and EHR systems.</p>
+                    <p className="text-sm text-slate-500 mt-1">Access patient triage & EHR.</p>
+                  </div>
+                </button>
+
+                <button 
+                  onClick={() => setRole("admin")}
+                  className="p-4 lg:p-6 border-2 border-slate-100 rounded-2xl flex flex-col items-center gap-4 hover:border-purple-500 hover:bg-purple-50 transition-all group text-center"
+                >
+                  <div className="w-16 h-16 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <ShieldCheck size={32} />
+                  </div>
+                  <div className="text-center">
+                    <h3 className="font-bold text-slate-800 text-lg">Administrator</h3>
+                    <p className="text-sm text-slate-500 mt-1">Manage system & security.</p>
                   </div>
                 </button>
               </div>
@@ -104,12 +121,12 @@ export default function LoginPage() {
                 ← Back to Roles
               </button>
               
-              <div className={`w-20 h-20 rounded-full mb-6 flex items-center justify-center ${role === 'doctor' ? 'bg-emerald-100 text-emerald-600' : 'bg-blue-100 text-blue-600'}`}>
-                {role === 'doctor' ? <Stethoscope size={40} /> : <User size={40} />}
+              <div className={`w-20 h-20 rounded-full mb-6 flex items-center justify-center ${role === 'doctor' ? 'bg-emerald-100 text-emerald-600' : role === 'admin' ? 'bg-purple-100 text-purple-600' : 'bg-blue-100 text-blue-600'}`}>
+                {role === 'doctor' ? <Stethoscope size={40} /> : role === 'admin' ? <ShieldCheck size={40} /> : <User size={40} />}
               </div>
               
               <h2 className="text-3xl font-black text-slate-800 mb-2">
-                {role === 'doctor' ? 'Doctor Login' : 'Patient Login'}
+                {role === 'doctor' ? 'Doctor Login' : role === 'admin' ? 'Admin Login' : 'Patient Login'}
               </h2>
               <p className="text-slate-500 font-medium mb-10">
                 Continue with your enterprise Google Workspace or personal account.
